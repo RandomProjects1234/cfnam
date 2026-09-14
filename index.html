@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFNAM — build your own custom five nights game</title>
+<link rel="stylesheet" href="studio/studio.css">
+</head>
+<body>
+
+<div id="app">
+
+  <div id="topbar">
+    <div id="logo">CFNAM<span> · Custom Five Nights At Maker</span></div>
+    <input id="proj-name" type="text" placeholder="Game title">
+    <div class="grow"></div>
+    <button class="btn" id="btn-new">New</button>
+    <button class="btn" id="btn-save">Save file</button>
+    <button class="btn" id="btn-load">Open file</button>
+    <input type="file" id="file-load" accept=".fnafproj,.json,application/json" style="display:none">
+    <button class="btn go" id="btn-play">▶ Play</button>
+    <button class="btn primary" id="btn-export">⬇ Export</button>
+  </div>
+
+  <div id="tabs"></div>
+
+  <div id="body">
+    <div id="sidenav"></div>
+    <div id="panel"></div>
+  </div>
+
+</div>
+
+<div id="play-overlay">
+  <div id="play-bar">
+    <button class="btn" id="btn-close-play">✕ Close</button>
+    <span style="color:#8b93a3;font-size:13px">Live preview — exactly what the exported game will do. Press Esc to close.</span>
+  </div>
+  <iframe id="play-frame" title="Game preview"></iframe>
+</div>
+
+<div id="toast"></div>
+
+<!-- game runtime (shared with every exported game) -->
+<script src="game/module.js"></script>
+<script src="game/style.js"></script>
+<script src="game/audio.js"></script>
+<script src="game/render.js"></script>
+<script src="game/engine.js"></script>
+<script src="game/boot.js"></script>
+
+<!-- studio -->
+<script src="studio/zip.js"></script>
+<script src="studio/presets.js"></script>
+<script src="studio/bundler.js"></script>
+<script src="studio/studio.js"></script>
+
+</body>
+</html>

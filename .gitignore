@@ -1,0 +1,12 @@
+# Anything a player of the studio might export or save locally.
+# These can contain uploaded photos/audio and should never be committed.
+*.fnafproj
+/exports/
+/dist/
+/*.zip
+/*.html
+!index.html
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
