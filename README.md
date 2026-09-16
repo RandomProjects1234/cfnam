@@ -36,11 +36,16 @@ costs you autosave — "Save file" still works), `Start CFNAM.bat` serves the sa
 folder on <http://localhost:3483>. You can also just upload the whole `fnaf-clone` folder
 to any static host and use the studio online.
 
-## The two tabs
+## The three tabs
 
-**Simple** — title, how many nights, a difficulty, one of five maps, and up to six
-animatronics with a name and a picture each. Every animatronic automatically gets a
-different behaviour, route and entrance. Nothing else is required to have a playable game.
+**Ultra Simple** (the default) — drop in a picture, type a name, up to four
+animatronics. That is the entire interface. Uses the built-in pizzeria map, normal
+difficulty and five nights, so there is nothing else to decide. No picture? One gets
+drawn for you.
+
+**Simple** — adds the choices Ultra Simple makes for you: title, number of nights,
+difficulty, one of five maps, and up to six animatronics. Every animatronic still gets a
+different behaviour, route and entrance automatically.
 
 **Advanced** — everything else, in seven sections:
 
@@ -54,8 +59,7 @@ different behaviour, route and entrance. Nothing else is required to have a play
 | Audio | Master and ambience volume, five built-in ambiences or your own looping track |
 | Export | Downloads the game as one .html file, or as a zipped folder |
 
-Anything you do in Simple is written into the same project Advanced edits — switching tabs
-never throws work away. (Changing the *map* is the one exception: routes get rebuilt for the
+All three tabs edit the same project — switching between them never throws work away. (Changing the *map* is the one exception: routes get rebuilt for the
 new layout, because the old room IDs no longer exist.)
 
 ## Animatronic traits

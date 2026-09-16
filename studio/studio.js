@@ -36,7 +36,8 @@
 
   /* ---------------- state ---------------- */
   var cfg = null;
-  var ui = { tab: 'simple', section: 'game', openAni: 0, selRoom: null, difficulty: 'normal', mapId: 'pizzeria' };
+  var ui = { tab: 'ultra', section: 'game', openAni: 0, selRoom: null, difficulty: 'normal', mapId: 'pizzeria' };
+  var ULTRA_MAX = 4;
 
   function newProject(mapId) {
     ui.mapId = mapId || 'pizzeria';
@@ -356,6 +357,110 @@
   /* ============================================================
      SIMPLE TAB
      ============================================================ */
+  /* ============================================================
+     ULTRA SIMPLE TAB  — the default. A picture and a name, nothing else.
+     Everything not shown here (map, difficulty, nights, AI, routes,
+     traits, power) stays on whatever the project already has, which for
+     a new project is the built-in defaults.
+     ============================================================ */
+  function panelUltra() {
+    var wrap = e('div', { class: 'sheet' }, [
+      e('h2', { class: 'sec', text: 'Make a game' }),
+      e('p', { class: 'sec', text: 'Drop in a picture, type a name. That is the whole thing — everything else is already set up for you.' })
+    ]);
+
+    wrap.appendChild(e('div', { class: 'card' }, [
+      field('What is your game called?',
+        txt(cfg.meta, 'title', { onChange: function () { $('#proj-name').value = cfg.meta.title; } }))
+    ]));
+
+    var grid = e('div', { class: 'ultra-grid' });
+
+    function paintSlots() {
+      grid.innerHTML = '';
+
+      cfg.animatronics.slice(0, ULTRA_MAX).forEach(function (a, i) {
+        var slot = e('div', { class: 'card ultra-slot', style: 'border-top:3px solid ' + a.color });
+
+        slot.appendChild(drop(a, 'camImage', {
+          label: 'Click or drop a picture',
+          onChange: function () {
+            // one picture is enough: use it on cameras, at the door and for the scare
+            a.doorImage = a.camImage;
+            a.jumpscareImage = a.camImage;
+            save();
+          }
+        }));
+
+        slot.appendChild(e('div', { style: 'margin-top:10px' }, [
+          txt(a, 'name', { placeholder: 'Give it a name' })
+        ]));
+
+        var foot = e('div', { class: 'ultra-foot' }, [
+          e('span', { class: 'pill', text: a.entry === 'any' ? 'any door' : a.entry + ' door' })
+        ]);
+        if (cfg.animatronics.length > 1) {
+          var rm = e('button', { class: 'btn tiny danger', text: 'Remove' });
+          rm.onclick = function () {
+            cfg.animatronics.splice(i, 1);
+            cfg = FNAF.normalize(cfg);
+            save(); paintSlots();
+          };
+          foot.appendChild(rm);
+        }
+        slot.appendChild(foot);
+        grid.appendChild(slot);
+      });
+
+      if (cfg.animatronics.length < ULTRA_MAX) {
+        var addCard = e('button', { class: 'card ultra-slot ultra-add' }, [
+          e('div', { class: 'plus', text: '+' }),
+          e('div', { text: 'Add another' }),
+          e('div', { class: 'sub', text: (ULTRA_MAX - cfg.animatronics.length) + ' left' })
+        ]);
+        addCard.onclick = function () {
+          setCount(cfg.animatronics.length + 1);
+          paintSlots();
+        };
+        grid.appendChild(addCard);
+      }
+    }
+    paintSlots();
+
+    wrap.appendChild(e('div', { class: 'card' }, [
+      e('h3', { text: 'Who is coming for you?' }),
+      e('div', { class: 'desc', text: 'Up to four. No picture? It gets drawn for you. Each one automatically gets its own behaviour and its own way in.' }),
+      grid
+    ]));
+
+    var playBtn = e('button', { class: 'btn go ultra-go', text: '▶  Play it' });
+    playBtn.onclick = play;
+    var oneBtn = e('button', { class: 'btn primary ultra-go', text: '⬇  Save as a game file' });
+    oneBtn.onclick = doExportSingle;
+
+    wrap.appendChild(e('div', { class: 'card' }, [
+      e('div', { style: 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center' }, [playBtn, oneBtn]),
+      e('div', { class: 'desc', style: 'text-align:center;margin:12px 0 0',
+        text: 'Saving gives you one .html file. Double-click it to play, or send it to a friend — it works on its own.' })
+    ]));
+
+    // only mention problems if there actually are any
+    var bad = validate().filter(function (i) { return i.l === 'bad'; });
+    if (bad.length) {
+      var list = e('div', {});
+      bad.forEach(function (i) { list.appendChild(e('div', { class: 'issue bad' }, [e('span', { text: i.t })])); });
+      wrap.appendChild(e('div', { class: 'card' }, [
+        e('h3', { text: 'Needs fixing first' }),
+        list,
+        e('div', { class: 'desc', style: 'margin-top:8px', text: 'These come from settings in the other tabs.' })
+      ]));
+    }
+
+    wrap.appendChild(e('div', { class: 'desc', style: 'text-align:center;margin-top:18px',
+      text: 'Want maps, difficulty and nights? Try the Simple tab. Want to control everything? Advanced.' }));
+    return wrap;
+  }
+
   function panelSimple() {
     var wrap = e('div', { class: 'sheet' }, [
       e('h2', { class: 'sec', text: 'Simple mode' }),
@@ -1193,7 +1298,9 @@
   function render() {
     var tabs = $('#tabs');
     tabs.innerHTML = '';
-    [['simple', 'Simple', 'pictures & count'], ['advanced', 'Advanced', 'everything else']].forEach(function (t) {
+    [['ultra', 'Ultra Simple', 'photo + name'],
+     ['simple', 'Simple', 'maps & difficulty'],
+     ['advanced', 'Advanced', 'everything else']].forEach(function (t) {
       var b = e('button', { class: 'tab' + (ui.tab === t[0] ? ' active' : '') }, [
         document.createTextNode(t[1]), e('small', { text: t[2] })
       ]);
@@ -1218,7 +1325,9 @@
 
     var panel = $('#panel');
     panel.innerHTML = '';
-    panel.appendChild(ui.tab === 'simple' ? panelSimple() : panelAdvanced());
+    panel.appendChild(
+      ui.tab === 'ultra' ? panelUltra() :
+      ui.tab === 'simple' ? panelSimple() : panelAdvanced());
     panel.scrollTop = 0;
     $('#proj-name').value = cfg.meta.title;
   }

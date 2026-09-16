@@ -225,3 +225,24 @@ input[type=color] {
 #toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
 #toast.bad { border-color: #7a2b2b; color: #ffbcbc; }
 #toast.good { border-color: #2c6b42; color: #b6f0c9; }
+
+/* ---------- ultra simple tab ---------- */
+.ultra-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px;
+}
+.ultra-slot { margin: 0; display: flex; flex-direction: column; }
+.ultra-slot .drop { min-height: 150px; }
+.ultra-slot input[type=text] { text-align: center; font-size: 15px; }
+.ultra-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-top: 10px;
+}
+.ultra-add {
+  border: 1px dashed #333a48; background: var(--bg2); color: var(--dim2);
+  align-items: center; justify-content: center; text-align: center;
+  cursor: pointer; transition: .15s; font: inherit; min-height: 250px;
+}
+.ultra-add:hover { border-color: var(--acc); color: var(--txt); }
+.ultra-add .plus { font-size: 34px; line-height: 1; margin-bottom: 8px; }
+.ultra-add .sub { font-size: 11px; color: var(--dim2); margin-top: 4px; }
+.ultra-go { padding: 14px 34px; font-size: 16px; }
