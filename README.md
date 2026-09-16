@@ -8,21 +8,27 @@ CFNAM is a fan-made, from-scratch tool: no Five Nights at Freddy's assets, code,
 trademarked names are used anywhere. Everything on screen is either procedurally drawn or
 something you upload yourself.
 
-## Download
+## Use it online
 
-**[Get the latest release](https://github.com/RandomProjects1234/cfnam/releases/latest)**
+**[randomprojects1234.github.io/cfnam](https://randomprojects1234.github.io/cfnam/)**
 
-| | |
-| --- | --- |
-| **CFNAM-Setup.exe** | Windows installer. Double-click, it installs to your user folder and puts a **CFNAM** shortcut on your Desktop and in the Start Menu. Uninstall from Start Menu &rarr; CFNAM &rarr; Uninstall CFNAM. |
-| **CFNAM-portable.zip** | No installer. Unzip anywhere and double-click `index.html`. Runs from a USB stick. |
+Nothing to install. It runs entirely in your browser and never sends anything anywhere.
 
-The installer is not code-signed, so Windows SmartScreen will show
-*"Windows protected your PC"* the first time. Click **More info &rarr; Run anyway**.
-If you would rather not run an unsigned exe, use the portable zip — it is the same
-files, just without the shortcut-making step. You can also read exactly what the
-installer does in [`installer/Setup.template.cs`](installer/Setup.template.cs) and
-rebuild it yourself with `installer/build.ps1`.
+## Windows installer (build it yourself)
+
+There is currently no packaged download — build one locally if you want a Desktop
+shortcut and an offline copy:
+
+```
+powershell -ExecutionPolicy Bypass -File installer/build.ps1
+```
+
+Produces `installer\out\CFNAM-Setup.exe` (self-contained, installs to your user folder
+with a Desktop + Start Menu shortcut) and `installer\out\CFNAM-portable.zip` (no
+installer, unzip and double-click `index.html`). Full source is in
+[`installer/Setup.template.cs`](installer/Setup.template.cs). Being unsigned, the exe
+will trigger Windows SmartScreen (*"Windows protected your PC"* → **More info → Run
+anyway**) — the portable zip avoids that if you'd rather skip it.
 
 ## Run it
 
