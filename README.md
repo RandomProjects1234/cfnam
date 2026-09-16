@@ -8,9 +8,26 @@ CFNAM is a fan-made, from-scratch tool: no Five Nights at Freddy's assets, code,
 trademarked names are used anywhere. Everything on screen is either procedurally drawn or
 something you upload yourself.
 
+## Download
+
+**[Get the latest release](https://github.com/RandomProjects1234/cfnam/releases/latest)**
+
+| | |
+| --- | --- |
+| **CFNAM-Setup.exe** | Windows installer. Double-click, it installs to your user folder and puts a **CFNAM** shortcut on your Desktop and in the Start Menu. Uninstall from Start Menu &rarr; CFNAM &rarr; Uninstall CFNAM. |
+| **CFNAM-portable.zip** | No installer. Unzip anywhere and double-click `index.html`. Runs from a USB stick. |
+
+The installer is not code-signed, so Windows SmartScreen will show
+*"Windows protected your PC"* the first time. Click **More info &rarr; Run anyway**.
+If you would rather not run an unsigned exe, use the portable zip — it is the same
+files, just without the shortcut-making step. You can also read exactly what the
+installer does in [`installer/Setup.template.cs`](installer/Setup.template.cs) and
+rebuild it yourself with `installer/build.ps1`.
+
 ## Run it
 
-Double-click `fnaf-clone/index.html`. That's it — no server, no install, no build step.
+Installed it? Use the Desktop shortcut. Otherwise just double-click `index.html`.
+Either way: no server, no build step, nothing to configure.
 The studio is itself a browser page, and it never fetches anything: the runtime files
 register their own source so the studio can read it back and write it into your game.
 

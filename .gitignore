@@ -7,6 +7,9 @@
 /*.html
 !index.html
 
+# Installer build artifacts (shipped as release assets, not in the repo)
+installer/out/
+
 # OS/editor noise
 .DS_Store
 Thumbs.db
