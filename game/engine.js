@@ -107,6 +107,10 @@ FNAF_MODULE('engine.js', function (root) {
       m.voice = Object.assign({ volume: 1, lines: [] }, a.voice || {});
       m.ai = (m.ai && m.ai.length ? m.ai : d.ai).slice(0, 7);
       while (m.ai.length < 7) m.ai.push(m.ai[m.ai.length - 1]);
+      // An empty doorway/jumpscare picture means "use the camera picture". Older
+      // projects stored the same picture three times, tripling the game's size.
+      if (m.doorImage && m.doorImage === m.camImage) m.doorImage = null;
+      if (m.jumpscareImage && m.jumpscareImage === m.camImage) m.jumpscareImage = null;
       m.route = (m.route || []).filter(function (id) { return ids.indexOf(id) >= 0; });
       if (m.pathMode === 'route' && !m.route.length) m.pathMode = 'random';
       if (ids.indexOf(m.startRoom) < 0) m.startRoom = m.pathMode === 'route' ? m.route[0] : cfg.map.start;
@@ -524,10 +528,11 @@ FNAF_MODULE('engine.js', function (root) {
       dom.cams.classList.remove('on');
       dom.blackout.classList.remove('on');
       dom.scare.innerHTML = '';
-      var im = def.jumpscareImage ? R.img(def.jumpscareImage) : null;
+      var scareSrc = def.jumpscareImage || def.camImage;
+      var im = scareSrc ? R.img(scareSrc) : null;
       if (R.ready(im)) {
         var el = document.createElement('img');
-        el.src = def.jumpscareImage;
+        el.src = scareSrc;
         dom.scare.appendChild(el);
       } else {
         var c = document.createElement('canvas');

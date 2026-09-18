@@ -78,6 +78,176 @@
       ]
     },
 
+    hospital: {
+      id: 'hospital', name: "St. Agatha's Hospital", start: 'morgue',
+      desc: 'Night shift in a closed wing. The morgue is closer than you would like.',
+      rooms: [
+        R('morgue',   'Morgue',            'CAM 1',  'storage',  0.50, 0.06, ['basement']),
+        R('basement', 'Basement Hall',     'CAM 2',  'hall',     0.50, 0.24, ['surgery', 'pharmacy', 'boiler']),
+        R('surgery',  'Operating Theatre', 'CAM 3',  'office',   0.16, 0.26, ['wardA']),
+        R('pharmacy', 'Pharmacy',          'CAM 4',  'storage',  0.84, 0.26, ['wardB']),
+        R('boiler',   'Boiler Room',       'CAM 5',  'storage',  0.50, 0.48, ['airDuct']),
+        R('wardA',    'Ward A',            'CAM 6',  'bedroom',  0.18, 0.54, ['westCorr']),
+        R('wardB',    'Ward B',            'CAM 7',  'bedroom',  0.82, 0.54, ['eastCorr']),
+        R('westCorr', 'West Corridor',     'CAM 8',  'hall',     0.26, 0.82, [], 'left'),
+        R('eastCorr', 'East Corridor',     'CAM 9',  'hall',     0.74, 0.82, [], 'right'),
+        R('airDuct',  'Air Duct',          'CAM 10', 'vent',     0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    mall: {
+      id: 'mall', name: 'Starlight Mall', start: 'toyStore',
+      desc: 'Shutters down, fountain still running. Something is walking the upper level.',
+      rooms: [
+        R('toyStore',  'Toy Store',        'CAM 1',  'arcade',   0.50, 0.07, ['fountain']),
+        R('fountain',  'Fountain Court',   'CAM 2',  'dining',   0.50, 0.27, ['foodCourt', 'cinema', 'dept', 'escalator']),
+        R('foodCourt', 'Food Court',       'CAM 3',  'dining',   0.15, 0.30, ['westWing']),
+        R('cinema',    'Cinema Lobby',     'CAM 4',  'stage',    0.85, 0.30, ['eastWing']),
+        R('dept',      'Department Store', 'CAM 5',  'storage',  0.30, 0.52, ['westWing']),
+        R('escalator', 'Escalators',       'CAM 6',  'corner',   0.66, 0.52, ['eastWing', 'serviceDuct']),
+        R('restrooms', 'Restrooms',        'CAM 7',  'bathroom', 0.92, 0.60, ['eastWing']),
+        R('westWing',  'West Wing',        'CAM 8',  'hall',     0.24, 0.82, [], 'left'),
+        R('eastWing',  'East Wing',        'CAM 9',  'hall',     0.78, 0.82, [], 'right'),
+        R('serviceDuct','Service Duct',    'CAM 10', 'vent',     0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    ship: {
+      id: 'ship', name: 'The S.S. Marionette', start: 'ballroom',
+      desc: 'A cruise ship out of season. Cabins below deck, engines that never stop.',
+      rooms: [
+        R('ballroom',  'Grand Ballroom',     'CAM 1',  'stage',   0.50, 0.07, ['deck']),
+        R('deck',      'Promenade Deck',     'CAM 2',  'hall',    0.50, 0.25, ['galley', 'casino', 'stairwell']),
+        R('galley',    'Galley',             'CAM 3',  'kitchen', 0.14, 0.28, ['cabinsP']),
+        R('casino',    'Casino',             'CAM 4',  'arcade',  0.86, 0.28, ['cabinsS']),
+        R('stairwell', 'Stairwell',          'CAM 5',  'corner',  0.50, 0.44, ['engine']),
+        R('engine',    'Engine Room',        'CAM 6',  'storage', 0.50, 0.60, ['bilge']),
+        R('cabinsP',   'Port Cabins',        'CAM 7',  'bedroom', 0.20, 0.55, ['portHall']),
+        R('cabinsS',   'Starboard Cabins',   'CAM 8',  'bedroom', 0.80, 0.55, ['starHall']),
+        R('portHall',  'Port Corridor',      'CAM 9',  'hall',    0.24, 0.82, [], 'left'),
+        R('starHall',  'Starboard Corridor', 'CAM 10', 'hall',    0.76, 0.82, [], 'right'),
+        R('bilge',     'Bilge Vent',         'CAM 11', 'vent',    0.50, 0.76, [], 'vent')
+      ]
+    },
+
+    station: {
+      id: 'station', name: 'Outpost Kepler-9', start: 'bridge',
+      desc: 'Deep-space research station. The crew stopped answering three days ago.',
+      rooms: [
+        R('bridge',    'Command Bridge',    'CAM 1',  'office',   0.50, 0.07, ['spine']),
+        R('spine',     'Central Spine',     'CAM 2',  'hall',     0.50, 0.26, ['hydro', 'lab', 'reactor']),
+        R('hydro',     'Hydroponics',       'CAM 3',  'generic',  0.15, 0.30, ['quarters']),
+        R('lab',       'Xeno Lab',          'CAM 4',  'storage',  0.85, 0.30, ['medbay']),
+        R('reactor',   'Reactor Core',      'CAM 5',  'storage',  0.50, 0.50, ['ductShaft']),
+        R('quarters',  'Crew Quarters',     'CAM 6',  'bedroom',  0.20, 0.56, ['portLock']),
+        R('medbay',    'Med Bay',           'CAM 7',  'bathroom', 0.80, 0.56, ['starLock']),
+        R('portLock',  'Port Airlock',      'CAM 8',  'corner',   0.24, 0.82, [], 'left'),
+        R('starLock',  'Starboard Airlock', 'CAM 9',  'corner',   0.76, 0.82, [], 'right'),
+        R('ductShaft', 'Maintenance Shaft', 'CAM 10', 'vent',     0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    theater: {
+      id: 'theater', name: 'Palace Picture House', start: 'screen',
+      desc: 'An old single-screen cinema. The projector still runs at midnight.',
+      rooms: [
+        R('screen',      'Main Screen',      'CAM 1',  'stage',    0.50, 0.07, ['aisles']),
+        R('aisles',      'Aisles',           'CAM 2',  'dining',   0.50, 0.26, ['booth', 'balcony', 'lobby']),
+        R('booth',       'Projection Booth', 'CAM 3',  'office',   0.85, 0.12, ['balcony']),
+        R('balcony',     'Balcony',          'CAM 4',  'corner',   0.82, 0.38, ['eastExit']),
+        R('lobby',       'Lobby',            'CAM 5',  'dining',   0.50, 0.48, ['concessions', 'restrooms', 'crawl']),
+        R('concessions', 'Concessions',      'CAM 6',  'kitchen',  0.18, 0.44, ['westExit']),
+        R('restrooms',   'Restrooms',        'CAM 7',  'bathroom', 0.84, 0.60, []),
+        R('westExit',    'West Exit',        'CAM 8',  'hall',     0.24, 0.82, [], 'left'),
+        R('eastExit',    'East Exit',        'CAM 9',  'hall',     0.76, 0.82, [], 'right'),
+        R('crawl',       'Under the Stage',  'CAM 10', 'vent',     0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    hotel: {
+      id: 'hotel', name: 'Hotel Vesper', start: 'ballroom',
+      desc: 'A grand hotel with one guest left. Room 313 has not been cleaned in forty years.',
+      rooms: [
+        R('ballroom', 'Ballroom',       'CAM 1',  'stage',   0.50, 0.07, ['lobby']),
+        R('lobby',    'Lobby',          'CAM 2',  'dining',  0.50, 0.26, ['bar', 'kitchen', 'elevator']),
+        R('bar',      'Hotel Bar',      'CAM 3',  'arcade',  0.16, 0.28, ['room313']),
+        R('kitchen',  'Kitchen',        'CAM 4',  'kitchen', 0.84, 0.28, ['laundry']),
+        R('elevator', 'Elevator Shaft', 'CAM 5',  'corner',  0.50, 0.48, ['chute']),
+        R('room313',  'Room 313',       'CAM 6',  'bedroom', 0.18, 0.55, ['westHall']),
+        R('laundry',  'Laundry',        'CAM 7',  'storage', 0.82, 0.55, ['eastHall']),
+        R('westHall', 'West Hallway',   'CAM 8',  'hall',    0.24, 0.82, [], 'left'),
+        R('eastHall', 'East Hallway',   'CAM 9',  'hall',    0.76, 0.82, [], 'right'),
+        R('chute',    'Laundry Chute',  'CAM 10', 'vent',    0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    factory: {
+      id: 'factory', name: 'Funtime Toy Works', start: 'assembly',
+      desc: 'The toy factory never turned its conveyor belts off. Neither did the toys.',
+      rooms: [
+        R('assembly',  'Assembly Line',    'CAM 1',  'storage', 0.50, 0.07, ['floor']),
+        R('floor',     'Factory Floor',    'CAM 2',  'hall',    0.50, 0.26, ['paint', 'packing', 'qa']),
+        R('paint',     'Paint Shop',       'CAM 3',  'generic', 0.15, 0.28, ['warehouse']),
+        R('packing',   'Packing',          'CAM 4',  'storage', 0.85, 0.28, ['breakroom']),
+        R('qa',        'Quality Control',  'CAM 5',  'office',  0.50, 0.48, ['conveyor']),
+        R('warehouse', 'Warehouse',        'CAM 6',  'storage', 0.20, 0.55, ['loadingW']),
+        R('breakroom', 'Break Room',       'CAM 7',  'kitchen', 0.80, 0.55, ['loadingE']),
+        R('loadingW',  'West Loading Bay', 'CAM 8',  'corner',  0.24, 0.82, [], 'left'),
+        R('loadingE',  'East Loading Bay', 'CAM 9',  'corner',  0.76, 0.82, [], 'right'),
+        R('conveyor',  'Conveyor Duct',    'CAM 10', 'vent',    0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    museum: {
+      id: 'museum', name: 'Hallowell Museum', start: 'dino',
+      desc: 'After hours at the natural history museum. Not every exhibit is stuffed.',
+      rooms: [
+        R('dino',        'Dinosaur Hall',    'CAM 1',  'stage',   0.50, 0.07, ['rotunda']),
+        R('rotunda',     'Rotunda',          'CAM 2',  'dining',  0.50, 0.26, ['egypt', 'gallery', 'archives']),
+        R('egypt',       'Egyptian Wing',    'CAM 3',  'storage', 0.15, 0.28, ['giftShop']),
+        R('gallery',     'Portrait Gallery', 'CAM 4',  'hall',    0.85, 0.28, ['restoration']),
+        R('archives',    'Archives',         'CAM 5',  'storage', 0.50, 0.48, ['heating']),
+        R('giftShop',    'Gift Shop',        'CAM 6',  'arcade',  0.20, 0.55, ['westStair']),
+        R('restoration', 'Restoration Lab',  'CAM 7',  'office',  0.80, 0.55, ['eastStair']),
+        R('westStair',   'West Stairs',      'CAM 8',  'corner',  0.24, 0.82, [], 'left'),
+        R('eastStair',   'East Stairs',      'CAM 9',  'corner',  0.76, 0.82, [], 'right'),
+        R('heating',     'Heating Duct',     'CAM 10', 'vent',    0.50, 0.74, [], 'vent')
+      ]
+    },
+
+    camp: {
+      id: 'camp', name: 'Camp Blackwater', start: 'lake',
+      desc: 'Summer camp, off season. No vents out here — just two doors and the woods.',
+      rooms: [
+        R('lake',      'Lake Dock',     'CAM 1', 'generic',  0.50, 0.07, ['boathouse', 'campfire']),
+        R('boathouse', 'Boathouse',     'CAM 2', 'storage',  0.84, 0.14, ['cabinsE']),
+        R('campfire',  'Campfire Ring', 'CAM 3', 'stage',    0.40, 0.28, ['messHall', 'cabinsW']),
+        R('messHall',  'Mess Hall',     'CAM 4', 'dining',   0.64, 0.40, ['cabinsE', 'showers']),
+        R('cabinsW',   'West Cabins',   'CAM 5', 'bedroom',  0.16, 0.44, ['westTrail']),
+        R('cabinsE',   'East Cabins',   'CAM 6', 'bedroom',  0.84, 0.44, ['eastTrail']),
+        R('showers',   'Shower Block',  'CAM 7', 'bathroom', 0.50, 0.60, ['westTrail']),
+        R('westTrail', 'West Trail',    'CAM 8', 'hall',     0.24, 0.82, [], 'left'),
+        R('eastTrail', 'East Trail',    'CAM 9', 'hall',     0.76, 0.82, [], 'right')
+      ]
+    },
+
+    subway: {
+      id: 'subway', name: 'Line 9 Station', start: 'tunnel',
+      desc: 'The last train left hours ago. Something got off it.',
+      rooms: [
+        R('tunnel',      'Tunnel Mouth',     'CAM 1',  'hall',     0.50, 0.07, ['platform']),
+        R('platform',    'Platform',         'CAM 2',  'hall',     0.50, 0.26, ['ticket', 'maintenance', 'substation']),
+        R('ticket',      'Ticket Hall',      'CAM 3',  'dining',   0.16, 0.30, ['stairsW', 'restrooms']),
+        R('maintenance', 'Maintenance Room', 'CAM 4',  'storage',  0.84, 0.30, ['stairsE', 'control']),
+        R('substation',  'Power Substation', 'CAM 5',  'storage',  0.50, 0.48, ['ventShaft']),
+        R('restrooms',   'Restrooms',        'CAM 6',  'bathroom', 0.12, 0.58, []),
+        R('control',     'Control Booth',    'CAM 7',  'office',   0.88, 0.58, []),
+        R('stairsW',     'West Stairs',      'CAM 8',  'corner',   0.26, 0.82, [], 'left'),
+        R('stairsE',     'East Stairs',      'CAM 9',  'corner',   0.74, 0.82, [], 'right'),
+        R('ventShaft',   'Vent Shaft',       'CAM 10', 'vent',     0.50, 0.74, [], 'vent')
+      ]
+    },
+
     blank: {
       id: 'blank', name: 'Blank (build your own)', start: 'main',
       desc: 'Three rooms to start from. Add your own in the Map editor.',
@@ -89,6 +259,19 @@
       ]
     }
   };
+
+  /* Built-in maps are walkable in both directions. Writing every link twice by
+     hand is how Midnight Arcade shipped with its right door unreachable, so
+     each map lists a link once and it is mirrored here. */
+  Object.keys(P.maps).forEach(function (k) {
+    var map = P.maps[k], by = {};
+    map.rooms.forEach(function (r) { by[r.id] = r; });
+    map.rooms.forEach(function (r) {
+      r.links.forEach(function (l) {
+        if (by[l] && by[l].links.indexOf(r.id) < 0) by[l].links.push(r.id);
+      });
+    });
+  });
 
   P.mapList = function () {
     return Object.keys(P.maps).map(function (k) { return P.maps[k]; });
@@ -242,8 +425,9 @@
       a.color = src.color || PALETTE[i % PALETTE.length];
       a.shape = src.shape || SHAPES[i % SHAPES.length];
       a.camImage = src.camImage || null;
-      a.doorImage = src.doorImage || src.camImage || null;
-      a.jumpscareImage = src.jumpscareImage || src.camImage || null;
+      // empty = "use the camera picture" (the engine falls back to it)
+      a.doorImage = src.doorImage || null;
+      a.jumpscareImage = src.jumpscareImage || null;
       a.jumpscareSound = src.jumpscareSound || null;
       a.voice = src.voice || { volume: 1, lines: [] };
 

@@ -77,8 +77,38 @@
       if (!data || !data.cfg) return false;
       cfg = FNAF.normalize(data.cfg);
       Object.assign(ui, data.ui || {});
+      healBuiltInMap();
       return true;
     } catch (err) { return false; }
+  }
+
+  /* A project keeps its own copy of the map it was made with, so fixes to a
+     built-in map don't reach it by themselves. Add back any link the fixed
+     built-in has; never remove anything. If that changed the map, re-plan the
+     routes that were jumping between rooms that weren't connected. */
+  function healBuiltInMap() {
+    var preset = Presets.maps[cfg.map.id];
+    if (!preset) return;
+    var by = {}, changed = false;
+    cfg.map.rooms.forEach(function (r) { by[r.id] = r; });
+    preset.rooms.forEach(function (pr) {
+      var r = by[pr.id];
+      if (!r) return;
+      pr.links.forEach(function (l) {
+        if (by[l] && r.links.indexOf(l) < 0) { r.links.push(l); changed = true; }
+      });
+    });
+    if (!changed) return;
+    var entries = entriesOf(cfg.map);
+    cfg.animatronics.forEach(function (a) {
+      if (a.pathMode !== 'route') return;
+      var jumps = a.route.some(function (id, i) {
+        return i > 0 && by[a.route[i - 1]] && by[a.route[i - 1]].links.indexOf(id) < 0;
+      });
+      if (!jumps) return;
+      a.route = Presets.routeToEntry(cfg.map, a.entry === 'any' ? entries[0] : a.entry, a.route[0] || cfg.map.start);
+      a.startRoom = a.route[0];
+    });
   }
 
   function saveToFile() {
@@ -93,35 +123,132 @@
     r.onload = function () {
       try {
         cfg = FNAF.normalize(JSON.parse(r.result));
+        healBuiltInMap();
         ui.selRoom = cfg.map.rooms[0].id;
         save(); render();
         toast('Project loaded', 'good');
+        afterProjectLoaded();
       } catch (err) { toast('That file is not a valid project', 'bad'); }
     };
     r.readAsText(file);
   }
 
   /* ---------------- file → data URL (with image downscaling) ---------------- */
+  /* Pictures are embedded in the game, so every byte ends up in the file
+     players download. A phone photo kept as-is is several MB, and a handful
+     of them made games too big for the preview to open at all. */
+  var IMG_MAX_SIDE = 1280;
+  var IMG_BUDGET = 450 * 1024;          // per picture, measured as a data URL
+
+  // Decode any picture this browser can open and re-encode it small. Photos
+  // become JPEG; only pictures that really use transparency stay transparent.
+  // cb(null) when the browser can't read the picture at all (e.g. HEIC).
+  function compressImage(src, cb) {
+    var im = new Image();
+    im.onload = function () {
+      if (!im.naturalWidth) return cb(null);
+      var side = IMG_MAX_SIDE, alpha = null, out = null;
+      for (var attempt = 0; attempt < 5; attempt++) {
+        var sc = Math.min(1, side / Math.max(im.naturalWidth, im.naturalHeight));
+        var c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(im.naturalWidth * sc));
+        c.height = Math.max(1, Math.round(im.naturalHeight * sc));
+        var g = c.getContext('2d');
+        g.drawImage(im, 0, 0, c.width, c.height);
+        if (alpha === null) alpha = usesTransparency(g, c.width, c.height);
+        if (alpha) {
+          out = c.toDataURL('image/webp', 0.85);
+          // browsers that can't write WebP hand back PNG instead
+          if (out.indexOf('data:image/webp') !== 0) out = c.toDataURL('image/png');
+        } else {
+          out = c.toDataURL('image/jpeg', 0.82);
+        }
+        if (out.length <= IMG_BUDGET) break;
+        side = Math.round(side * 0.75);
+      }
+      cb(out);
+    };
+    im.onerror = function () { cb(null); };
+    im.src = src;
+  }
+
+  function usesTransparency(g, w, h) {
+    var d = g.getImageData(0, 0, w, h).data;
+    for (var i = 3; i < d.length; i += 16) if (d[i] < 250) return true;
+    return false;
+  }
+
+  function looksLikePicture(file) {
+    return /^image\//.test(file.type) || /\.(heic|heif|avif|jpe?g|png|webp|gif|bmp)$/i.test(file.name);
+  }
+
   function readAsset(file, cb) {
     if (!file) return;
-    var isImage = /^image\//.test(file.type);
     var r = new FileReader();
     r.onload = function () {
-      if (!isImage || file.size < 350 * 1024) return cb(r.result);
-      var im = new Image();
-      im.onload = function () {
-        var max = 1400;
-        var sc = Math.min(1, max / Math.max(im.width, im.height));
-        var c = document.createElement('canvas');
-        c.width = Math.round(im.width * sc); c.height = Math.round(im.height * sc);
-        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-        var hasAlpha = /png|webp|gif/i.test(file.type);
-        cb(c.toDataURL(hasAlpha ? 'image/png' : 'image/jpeg', 0.86));
-      };
-      im.onerror = function () { cb(r.result); };
-      im.src = r.result;
+      if (!looksLikePicture(file)) {
+        if (file.size > 3 * 1024 * 1024) {
+          toast('"' + file.name + '" is ' + (file.size / 1048576).toFixed(1) +
+                ' MB. Big sounds make the game slow to open — short clips work best.', 'bad');
+        }
+        return cb(r.result);
+      }
+      compressImage(r.result, function (small) {
+        if (!small) {
+          toast('Couldn’t open "' + file.name + '" — this browser can’t read that kind of ' +
+                'picture (iPhone HEIC photos do this). Save it as a JPG or PNG and try again.', 'bad');
+          return;
+        }
+        // keep the untouched original when it's already small and a normal format
+        var keep = r.result.length <= IMG_BUDGET && r.result.length <= small.length &&
+                   /^data:image\/(jpeg|png|webp|gif)/.test(r.result);
+        cb(keep ? r.result : small);
+      });
     };
     r.readAsDataURL(file);
+  }
+
+  /* Projects saved before pictures were compressed can be tens of MB. Shrink
+     them in place; a picture this browser can't show at all is removed, since
+     it only ever rendered as the drawn placeholder anyway. */
+  function shrinkProjectPictures(done) {
+    var slots = [];
+    function slot(obj, key) {
+      var v = obj && obj[key];
+      if (typeof v === 'string' && /^data:image\//.test(v) &&
+          (v.length > IMG_BUDGET || !/^data:image\/(jpeg|png|webp|gif)/.test(v))) {
+        slots.push({ obj: obj, key: key });
+      }
+    }
+    slot(cfg.office, 'image');
+    ['left', 'right', 'vent'].forEach(function (s) { slot(cfg.office[s], 'image'); });
+    cfg.map.rooms.forEach(function (r) { slot(r, 'image'); });
+    cfg.animatronics.forEach(function (a) {
+      slot(a, 'camImage'); slot(a, 'doorImage'); slot(a, 'jumpscareImage');
+    });
+    var shrunk = 0, dropped = 0, i = 0;
+    (function next() {
+      if (i >= slots.length) return done(shrunk, dropped);
+      var s = slots[i++];
+      compressImage(s.obj[s.key], function (small) {
+        if (small) { s.obj[s.key] = small; shrunk++; }
+        else { s.obj[s.key] = null; dropped++; }
+        next();
+      });
+    })();
+  }
+
+  function afterProjectLoaded() {
+    shrinkProjectPictures(function (shrunk, dropped) {
+      if (!shrunk && !dropped) return;
+      autosaveOK = true;          // it may fit in storage now
+      save(); render();
+      var msg = [];
+      if (shrunk) msg.push('Made ' + shrunk + ' picture' + (shrunk === 1 ? '' : 's') + ' smaller so your game opens fast.');
+      if (dropped) msg.push('Removed ' + dropped + ' picture' + (dropped === 1 ? '' : 's') +
+                            ' this browser can’t show (like iPhone HEIC) — re-add as JPG or PNG.');
+      toast(msg.join(' '), dropped ? 'bad' : 'good');
+    });
   }
 
   /* ---------------- form controls ---------------- */
@@ -350,6 +477,16 @@
     }
     if (cfg.meta.nights > 7) out.push({ l: 'warn', t: 'You have ' + cfg.meta.nights + ' nights but AI levels only go up to night 7 — later nights reuse the night 7 values.' });
 
+    var media = mediaReport();
+    var total = media.reduce(function (s, m) { return s + m.bytes; }, 0);
+    if (total > 20 * 1048576) {
+      out.push({ l: 'bad', t: 'Your pictures and sounds add up to ' + mb(total) + ' — the game will be very slow to open, ' +
+        'or may not open on phones. Biggest: ' + biggestMedia(3) + '.' });
+    } else if (total > 6 * 1048576) {
+      out.push({ l: 'warn', t: 'Your pictures and sounds add up to ' + mb(total) + ', so the game takes a moment to open. ' +
+        'Biggest: ' + biggestMedia(3) + '.' });
+    }
+
     if (!out.length) out.push({ l: 'ok', t: 'No problems found. This game is playable and beatable.' });
     return out;
   }
@@ -382,14 +519,11 @@
       cfg.animatronics.slice(0, ULTRA_MAX).forEach(function (a, i) {
         var slot = e('div', { class: 'card ultra-slot', style: 'border-top:3px solid ' + a.color });
 
+        // One picture is enough: the game reuses it at the door and for the
+        // scare. Clearing the other two makes sure an older copy doesn't win.
         slot.appendChild(drop(a, 'camImage', {
           label: 'Click or drop a picture',
-          onChange: function () {
-            // one picture is enough: use it on cameras, at the door and for the scare
-            a.doorImage = a.camImage;
-            a.jumpscareImage = a.camImage;
-            save();
-          }
+          onChange: function () { a.doorImage = null; a.jumpscareImage = null; save(); }
         }));
 
         slot.appendChild(e('div', { style: 'margin-top:10px' }, [
@@ -527,7 +661,7 @@
           field('Name', txt(a, 'name', { onChange: function () { paintTitle(card, a); } })),
           field('Picture', drop(a, 'camImage', {
             label: 'Drop a picture', onChange: function () {
-              a.doorImage = a.camImage; a.jumpscareImage = a.camImage; save();
+              a.doorImage = null; a.jumpscareImage = null; save();
             }
           }), 'Used on cameras, at your door and for the jumpscare.'),
           e('div', { class: 'hint', style: 'color:#5d6473;font-size:11px',
@@ -1248,15 +1382,69 @@
   }
 
   /* ---------------- play & export ---------------- */
-  function play() {
-    var ov = $('#play-overlay');
+  /* Every picture and sound embedded in the project, biggest first. */
+  function mediaReport() {
+    var items = [];
+    function add(label, v) {
+      if (typeof v === 'string' && v.indexOf('data:') === 0) items.push({ label: label, bytes: Math.round(v.length * 0.75) });
+    }
+    add('Office picture', cfg.office.image);
+    ['left', 'right', 'vent'].forEach(function (s) { add(s + ' hallway picture', cfg.office[s].image); });
+    cfg.map.rooms.forEach(function (r) { add(r.name + ' camera picture', r.image); });
+    cfg.animatronics.forEach(function (a) {
+      add(a.name + '’s picture', a.camImage);
+      add(a.name + '’s doorway picture', a.doorImage);
+      add(a.name + '’s jumpscare picture', a.jumpscareImage);
+      add(a.name + '’s jumpscare sound', a.jumpscareSound);
+      (a.voice.lines || []).forEach(function (l, i) { add(a.name + '’s voiceline ' + (i + 1), l.data); });
+    });
+    add('Blackout music', cfg.power.blackoutMusic);
+    add('Ambience track', cfg.audio.ambientFile);
+    return items.sort(function (x, y) { return y.bytes - x.bytes; });
+  }
+  function mb(bytes) { return (bytes / 1048576).toFixed(1) + ' MB'; }
+  function biggestMedia(n) {
+    return mediaReport().slice(0, n).map(function (m) { return m.label + ' (' + mb(m.bytes) + ')'; }).join(', ');
+  }
+
+  var playUrl = null, playWatch = null;
+  var PLAY_READY_TEXT = 'Live preview — exactly what the exported game will do. Press Esc to close.';
+
+  function clearPlay() {
     var frame = $('#play-frame');
-    ov.classList.add('on');
-    frame.srcdoc = '<div style="color:#666;font:14px monospace;padding:20px">Building…</div>';
+    clearTimeout(playWatch);
+    frame.onload = null;
+    // srcdoc beats src whenever both are set, so it must be gone before src is used
+    frame.removeAttribute('srcdoc');
+    frame.src = 'about:blank';
+    if (playUrl) { URL.revokeObjectURL(playUrl); playUrl = null; }
+  }
+
+  /* The preview used to go through iframe.srcdoc. Browsers silently never
+     render a large srcdoc, so a game with a few big photos sat on
+     "Building..." forever. A Blob URL loads the same page fine. */
+  function play() {
+    var frame = $('#play-frame'), status = $('#play-status');
+    $('#play-overlay').classList.add('on');
+    clearPlay();
+    status.textContent = 'Building…';
     Bundler.buildPreviewHTML(cfg).then(function (html) {
-      frame.srcdoc = html;
-      setTimeout(function () { try { frame.contentWindow.focus(); } catch (err) {} }, 300);
+      var size = html.length;
+      status.textContent = 'Loading your game' + (size > 2097152 ? ' (' + mb(size) + ')' : '') + '…';
+      playUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
+      frame.onload = function () {
+        if (frame.src === 'about:blank') return;
+        clearTimeout(playWatch);
+        status.textContent = PLAY_READY_TEXT;
+        try { frame.contentWindow.focus(); } catch (err) {}
+      };
+      frame.src = playUrl;
+      playWatch = setTimeout(function () {
+        status.textContent = 'Still loading — this game is ' + mb(size) +
+          '. Biggest: ' + (biggestMedia(3) || 'none') + '. Smaller pictures and shorter sounds load faster.';
+      }, 8000);
     }).catch(function (err) {
+      status.textContent = 'Could not build the preview.';
       frame.srcdoc = '<body style="background:#111;color:#f88;font:14px monospace;padding:26px">' +
         '<b>Could not build the preview.</b><br><br>' + String(err) +
         '<br><br>A runtime file failed to load. Make sure the whole folder is present:<br>' +
@@ -1265,7 +1453,8 @@
   }
   function stopPlay() {
     $('#play-overlay').classList.remove('on');
-    $('#play-frame').srcdoc = '';
+    clearPlay();
+    $('#play-status').textContent = PLAY_READY_TEXT;
   }
 
   function doExport() {
@@ -1354,6 +1543,7 @@
     });
 
     render();
+    afterProjectLoaded();
 
     Bundler.loadRuntime().catch(function (err) {
       toast('Runtime files missing (' + err.message + ') — Play and Export will not work.', 'bad');
